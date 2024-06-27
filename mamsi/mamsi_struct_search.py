@@ -86,7 +86,7 @@ class MamsiStructSearch:
         self._get_isotopologue_groups()
         self._get_adduct_groups()
 
-    def _get_adduct_groups(self):
+    def _get_adduct_groups(self, adducts='all'):
 
         for index, frame in enumerate(self.assay_metadata):
 
@@ -96,7 +96,7 @@ class MamsiStructSearch:
             # Detect isotopologues within one loop
 
             # Get neutral masses for all adducts
-            frame__ = self.get_neutral_mass(features=frame_)
+            frame__ = self.get_neutral_mass(features=frame_, adducts=adducts)
 
             # Search for adducts in current dataframe
             data_clusters_frame = self._search_main_adduct(frame__)
@@ -296,20 +296,20 @@ class MamsiStructSearch:
 
 
             
-            stream1 = pkg_resources.resource_stream(__name__, 'Data/Adducts/adduct_all.xlsx')
+            stream_all_adducts = pkg_resources.resource_stream(__name__, 'Data/Adducts/adduct_all.xlsx')
 
-            adducts_positive = pd.read_excel(stream1,
+            adducts_positive = pd.read_excel(stream_all_adducts,
                                              sheet_name='Positive ion mode')
-            adducts_negative = pd.read_excel(stream1,
+            adducts_negative = pd.read_excel(stream_all_adducts,
                                              sheet_name='Negative mode')
 
         else:
             # Load external adduct files
-            adducts_positive = pd.read_excel('/Users/lk1822/Library/CloudStorage/OneDrive-ImperialCollegeLondon/'
-                                             'Projects/Sandbox_PhD/metabolotools/Adducts/adduct_most_common.xlsx',
+            stream_common_adducts = pkg_resources.resource_stream(__name__, 'Data/Adducts/adduct_most_common.xlsx')
+
+            adducts_positive = pd.read_excel(stream_common_adducts,
                                              sheet_name='Positive ion mode')
-            adducts_negative = pd.read_excel('/Users/lk1822/Library/CloudStorage/OneDrive-ImperialCollegeLondon/'
-                                             'Projects/Sandbox_PhD/metabolotools/Adducts/adduct_most_common.xlsx',
+            adducts_negative = pd.read_excel(stream_common_adducts,
                                              sheet_name='Negative mode')
 
         df = features.copy()  # Copy features data frame
@@ -447,6 +447,7 @@ class MamsiStructSearch:
 
             if roi is None:
                 if frame.loc[0, 'Assay'] == 'HPOS':
+
                     roi = pd.read_csv(
                         'https://raw.githubusercontent.com/kopeckylukas/npc-open-lcms/main/'
                         'LC-MS%20Metabolite%20Annotations/HPOS_ROI_V_3_2_1.csv',
