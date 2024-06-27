@@ -284,18 +284,9 @@ class MamsiStructSearch:
         :param adducts: dataframe with ion masses and names
         :return: dataframe with m/z and hypothetical neutral masses for given adducts
         """
-
+        
+        # Load all filess with "all" adducts
         if adducts == 'all':
-            # Load external adduct files
-            # adducts_positive = pd.read_excel('/Users/lk1822/Library/CloudStorage/OneDrive-ImperialCollegeLondon/'
-            #                                  'Projects/Sandbox_PhD/metabolotools/Adducts/adduct_all.xlsx',
-            #                                  sheet_name='Positive ion mode')
-            # adducts_negative = pd.read_excel('/Users/lk1822/Library/CloudStorage/OneDrive-ImperialCollegeLondon/'
-            #                                  'Projects/Sandbox_PhD/metabolotools/Adducts/adduct_all.xlsx',
-            #                                  sheet_name='Negative mode')
-
-
-            
             stream_all_adducts = pkg_resources.resource_stream(__name__, 'Data/Adducts/adduct_all.xlsx')
 
             adducts_positive = pd.read_excel(stream_all_adducts,
@@ -303,6 +294,7 @@ class MamsiStructSearch:
             adducts_negative = pd.read_excel(stream_all_adducts,
                                              sheet_name='Negative mode')
 
+        # Load files with the "most common" adducts
         else:
             # Load external adduct files
             stream_common_adducts = pkg_resources.resource_stream(__name__, 'Data/Adducts/adduct_most_common.xlsx')
@@ -435,58 +427,53 @@ class MamsiStructSearch:
     def _get_annotation(self, roi=None):
         """
         Function annotates hypothetical features using the RIO files of the National Phenome Centre
-        :param frame: dataframe with structural clusters
-        :param roi: Region of Interest (RIO) file from the National Phenome Centre
-        :return: dataframe with structural clusters and feature annotations
+
+        :param roi: object (default None)
+            Region of Interest (RIO) file from the National Phenome Centre.
+        :return: Dataframe with structural clusters and feature annotations.
         """
+        
         # Load RIO files
 
         for index, frame in enumerate(self.assay_metadata):
 
             frame = frame.copy()
-
+                
             if roi is None:
                 if frame.loc[0, 'Assay'] == 'HPOS':
+                    roi_stream = pkg_resources.resource_stream(__name__, 'Data/ROI/HPOS_ROI_V_3_2_1.csv')
+                    roi = pd.read_csv(roi_stream, encoding='windows-1252')
 
-                    roi = pd.read_csv(
-                        'https://raw.githubusercontent.com/kopeckylukas/npc-open-lcms/main/'
-                        'LC-MS%20Metabolite%20Annotations/HPOS_ROI_V_3_2_1.csv',
-                        encoding='windows-1252')
                 elif frame.loc[0, 'Assay'] == 'UHPOS':
-                    roi = pd.read_csv(
-                        'https://raw.githubusercontent.com/kopeckylukas/npc-open-lcms/main/'
-                        'LC-MS%20Metabolite%20Annotations/HPOS_ROI_V_3_2_1.csv',
-                        encoding='windows-1252')
+                    roi_stream = pkg_resources.resource_stream(__name__, 'Data/ROI/HPOS_ROI_V_3_2_1.csv')
+                    roi = pd.read_csv(roi_stream, encoding='windows-1252')
+
                 elif frame.loc[0, 'Assay'] == 'SHPOS':
-                    roi = pd.read_csv(
-                        'https://raw.githubusercontent.com/kopeckylukas/npc-open-lcms/main/'
-                        'LC-MS%20Metabolite%20Annotations/HPOS_ROI_V_3_2_1.csv',
-                        encoding='windows-1252')
+                    roi_stream = pkg_resources.resource_stream(__name__, 'Data/ROI/HPOS_ROI_V_3_2_1.csv')
+                    roi = pd.read_csv(roi_stream, encoding='windows-1252')
+
                 elif frame.loc[0, 'Assay'] == 'LPOS':
-                    roi = pd.read_csv(
-                        'https://raw.githubusercontent.com/kopeckylukas/npc-open-lcms/main/'
-                        'LC-MS%20Metabolite%20Annotations/LPOS_ROI_V_5_1_2.csv',
-                        encoding='windows-1252')
+                    roi_stream = pkg_resources.resource_stream(__name__, 'Data/ROI/LPOS_ROI_V_5_1_2.csv')
+                    roi = pd.read_csv(roi_stream, encoding='windows-1252')
+
                 elif frame.loc[0, 'Assay'] == 'LNEG':
-                    roi = pd.read_csv(
-                        'https://raw.githubusercontent.com/kopeckylukas/npc-open-lcms/main/'
-                        'LC-MS%20Metabolite%20Annotations/LNEG_ROI_V_5_1_1.csv',
-                        encoding='windows-1252')
+                    roi_stream = pkg_resources.resource_stream(__name__, 'Data/ROI/LNEG_ROI_V_5_1_1.csv')
+                    roi = pd.read_csv(roi_stream, encoding='windows-1252')
+
                 elif frame.loc[0, 'Assay'] == 'RPOS':
-                    roi = pd.read_csv(
-                        'https://raw.githubusercontent.com/kopeckylukas/npc-open-lcms/main/'
-                        'LC-MS%20Metabolite%20Annotations/RPOS_ROI_V_3_2_0.csv',
-                        encoding='windows-1252')
+                    roi_stream = pkg_resources.resource_stream(__name__, 'Data/ROI/RPOS_ROI_V_3_2_0.csv')
+                    roi = pd.read_csv(roi_stream, encoding='windows-1252')
+
                 elif frame.loc[0, 'Assay'] == 'RNEG':
-                    roi = pd.read_csv(
-                        'https://raw.githubusercontent.com/kopeckylukas/npc-open-lcms/main/'
-                        'LC-MS%20Metabolite%20Annotations/RNEG_ROI_V_3_2_0.csv',
-                        encoding='windows-1252')
+                    roi_stream = pkg_resources.resource_stream(__name__, 'Data/ROI/RNEG_ROI_V_3_2_0.csv')
+                    roi = pd.read_csv(roi_stream, encoding='windows-1252')
+
                 else:
                     raise Exception("ANNOTATION ERROR - Assay has not been recognised. Please ensure that assay name "
                                     "matches naming convention of the National Phenome Centre (NPC) or run structural "
                                     "search without annotation. For more information on NPC assay naming convention please "
                                     "visit https://github.com/phenomecentre/npc-open-lcms")
+
             else:
                 roi = roi
 
